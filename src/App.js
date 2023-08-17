@@ -52,11 +52,21 @@ function Board({ xIsNext, squares, onPlay }) {
   );
 }
 
+function SortButton({ handleSort }) {
+  return <button onClick={handleSort}>Let's Sort!!</button>;
+}
+
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
+  const [isAscending, setIsAscending] = useState(true);
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
+
+  const handleSort = () => {
+    setIsAscending(!isAscending);
+    setHistory((prev) => prev.reverse());
+  };
 
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
@@ -68,30 +78,31 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = history.map((squares, move) => {
-    let description;
-    if (move > 0) {
-      if (currentMove === move) {
-        description = <div>{"You are at move #" + move}</div>;
-      } else {
-        description = (
+  const moves = [
+    <li key={0}>
+      <button onClick={() => jumpTo(0)}>Go to game start</button>
+    </li>,
+    ...history.slice(1).map((_, moveIndex) => {
+      const move = isAscending ? moveIndex + 1 : history.length - moveIndex - 1;
+      const description =
+        currentMove === move ? (
+          <div>{"You are at move #" + move}</div>
+        ) : (
           <button onClick={() => jumpTo(move)}>{"Go to move #" + move}</button>
         );
-      }
-    } else {
-      description = (
-        <button onClick={() => jumpTo(move)}>{"Go to game start"}</button>
-      );
-    }
-    return <li key={move}>{description}</li>;
-  });
+
+      return <li key={move}>{description}</li>;
+    }),
+  ];
 
   return (
     <div className="game">
       <div className="game-board">
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
+
       <div className="game-info">
+        <SortButton handleSort={handleSort} />
         <ol>{moves}</ol>
       </div>
     </div>
