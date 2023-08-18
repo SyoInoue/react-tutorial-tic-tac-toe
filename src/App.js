@@ -81,22 +81,29 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = [
-    <li key={0}>
-      <button onClick={() => jumpTo(0)}>Go to game start</button>
-    </li>,
-    ...history.slice(1).map((_, moveIndex) => {
-      const move = isAscending ? moveIndex + 1 : history.length - moveIndex - 1;
-      const description =
-        currentMove === move ? (
-          <div>{"You are at move #" + move}</div>
-        ) : (
-          <button onClick={() => jumpTo(move)}>{"Go to move #" + move}</button>
-        );
+  const moves = history.map((squares, move) => {
+    let location = "";
+    if (move > 0) {
+      const index = history[move - 1].findIndex((e, i) => e !== squares[i]);
+      location =
+        " (" + ((index % 3) + 1) + "," + (Math.floor(index / 3) + 1) + ")";
+    }
 
-      return <li key={move}>{description}</li>;
-    }),
-  ];
+    if (move === currentMove) {
+      return (
+        <li key={move}>
+          <b>{"You are at move #" + move + location}</b>
+        </li>
+      );
+    }
+    const description =
+      move > 0 ? "Go to move #" + move + location : "Go to game start";
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
 
   return (
     <div className="game">
