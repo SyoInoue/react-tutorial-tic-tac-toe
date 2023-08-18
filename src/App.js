@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-function Square({ value, onSquareClick }) {
+function Square({ value, onSquareClick, className }) {
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button className={className} onClick={onSquareClick}>
       {value}
     </button>
   );
@@ -23,11 +23,13 @@ function Board({ xIsNext, squares, onPlay }) {
     onPlay(nextSquares);
   }
 
-  const winner = calculateWinner(squares);
-  let status;
-  if (winner) {
-    status = "Winner: " + winner;
-  } else {
+  const win = calculateWinner(squares);
+  let status = "Draw";
+  let line = [];
+  if (win) {
+    status = "Winner: " + win.player;
+    line = win.line;
+  } else if (squares.includes(null)) {
     status = "Next player: " + (xIsNext ? "X" : "O");
   }
 
@@ -43,6 +45,7 @@ function Board({ xIsNext, squares, onPlay }) {
                 key={index}
                 value={squares[index]}
                 onSquareClick={() => handleClick(index)}
+                className={"square " + (line.includes(index) ? "win" : null)}
               />
             );
           })}
@@ -123,7 +126,7 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return { player: squares[a], line: [a, b, c] };
     }
   }
   return null;
